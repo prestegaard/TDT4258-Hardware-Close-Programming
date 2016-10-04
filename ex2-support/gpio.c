@@ -15,4 +15,6 @@ void setupGPIO()
 	*GPIO_PA_CTRL = 2;	/* set high drive strength */
 	*GPIO_PA_MODEH = 0x55555555;	/* set pins A8-15 as output */
 	*GPIO_PA_DOUT = 0x0700;	/* turn on LEDs D4-D8 (LEDs are active low) */
+	*GPIO_PA_MODEL = 0x33333333; /* set A0-A7 as input */
+	*GPIO_PA_DOUT = 0xff;
 }
