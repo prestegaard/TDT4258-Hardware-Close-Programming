@@ -10,6 +10,13 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 	   TODO feed new samples to the DAC
 	   remember to clear the pending interrupt by writing 1 to TIMER1_IFC
 	 */
+
+
+	 /*
+	 *GPIO_EXTIPSELL = 0x22222222;
+	 *GPIO_EXTIFALL = 0xFF;
+	 *GPIO_EXTIRISE = 0xFF;
+	 */
 }
 
 /* GPIO even pin interrupt handler */
