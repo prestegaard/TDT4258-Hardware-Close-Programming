@@ -82,7 +82,7 @@
 #define IABR0 ((volatile uint32_t*)0xe000e300)
 #define IABR1 ((volatile uint32_t*)0xe000e304)
 
-#define ICER0_12  (1 << 12)
+#define ISER0_12  (1 << 12)
 
 // IPR
 
