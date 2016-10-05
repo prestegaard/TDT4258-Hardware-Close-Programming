@@ -23,10 +23,16 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 {
 	/* TODO handle button pressed event, remember to clear pending interrupt */
+	button_change();
 }
 
 /* GPIO odd pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
 	/* TODO handle button pressed event, remember to clear pending interrupt */
+	button_change();
+}
+
+void button_change(){
+	*GPIO_PA_DOUT=(*GPIO_PC_DIN<<8);
 }
