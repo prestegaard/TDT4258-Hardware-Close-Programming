@@ -4,6 +4,7 @@
 #include "efm32gg.h"
 
 void button_change(){
+
 	*GPIO_PA_DOUT=(*GPIO_PC_DIN << 8);
 }
 
@@ -26,6 +27,7 @@ void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 /* GPIO even pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 {
+	*GPIO_IFC = *GPIO_IF;
 	/* TODO handle button pressed event, remember to clear pending interrupt */
 	button_change();
 }
@@ -33,6 +35,7 @@ void __attribute__ ((interrupt)) GPIO_EVEN_IRQHandler()
 /* GPIO odd pin interrupt handler */
 void __attribute__ ((interrupt)) GPIO_ODD_IRQHandler()
 {
+	*GPIO_IFC = *GPIO_IF;
 	/* TODO handle button pressed event, remember to clear pending interrupt */
 	button_change();
 }

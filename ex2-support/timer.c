@@ -8,9 +8,9 @@ void setupTimer(uint16_t period)
 {
 	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1;
 	*TIMER1_TOP = 317;
-	*TIMER1_IEN = 1;
+	//*TIMER1_IEN = 1;
 	*ISER0 |= ISER0_12;
-	*TIMER1_CMD = 1;
+	//*TIMER1_CMD = 1;
 
 	/*
 	   TODO enable and set up the timer
