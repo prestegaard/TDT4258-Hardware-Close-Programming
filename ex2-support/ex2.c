@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+
 #include "efm32gg.h"
 
 /*
@@ -10,7 +11,7 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD   0
+#define   SAMPLE_PERIOD   317		//	44100/14MHz = 317
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
@@ -32,9 +33,11 @@ int main(void)
 	/* TODO for higher energy efficiency, sleep while waiting for interrupts
 	   instead of infinite loop for busy-waiting
 	 */
-	 *SCR=6;
+
+	 *SCR=6; //energy mode
 	 __asm("WFI");
-	while (1) ;
+
+//	while (1) ;
 
 	return 0;
 }

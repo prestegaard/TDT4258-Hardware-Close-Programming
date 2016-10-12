@@ -4,8 +4,8 @@
 #include "efm32gg.h"
 
 void button_change(){
-
 	*GPIO_PA_DOUT=(*GPIO_PC_DIN << 8);
+	
 }
 
 /* TIMER1 interrupt handler */
