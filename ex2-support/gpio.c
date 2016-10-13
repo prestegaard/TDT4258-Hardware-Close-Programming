@@ -17,4 +17,10 @@ void setupGPIO()
 	*GPIO_PA_DOUT = 0x0700;	/* turn on LEDs D4-D8 (LEDs are active low) */
 	*GPIO_PC_MODEL = 0x33333333; /* set pin 0-7 as input */
 	*GPIO_PC_DOUT = 0xff; /* enable pullup for inputs */
+
+	*GPIO_EXTIPSELL = 0x22222222;
+	*GPIO_EXTIFALL = 0xFF;
+	*GPIO_EXTIRISE = 0xFF;
+	*GPIO_IEN = 0xFF;
+
 }

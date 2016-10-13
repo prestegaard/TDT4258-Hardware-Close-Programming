@@ -2,7 +2,17 @@
 #include <stdbool.h>
 
 #include "efm32gg.h"
+/*
+void startTimer()
+{
+	*TIMER1_CMD = 1;
+}
 
+void stopTimer()
+{
+	*TIMER1_CMD = 2;
+}
+*/
 /* function to setup the timer */
 void setupTimer(uint16_t period)
 {
@@ -23,14 +33,3 @@ void setupTimer(uint16_t period)
 	   This will cause a timer interrupt to be generated every (period) cycles. Remember to configure the NVIC as well, otherwise the interrupt handler will not be invoked.
 	 */
 }
-/*
-void startTimer()
-{
-	*TIMER1_CMD = 1;
-}
-
-void stopTimer()
-{
-	*timer_CMD = 0;
-}
-*/
