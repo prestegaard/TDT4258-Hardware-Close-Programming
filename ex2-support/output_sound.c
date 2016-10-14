@@ -4,10 +4,17 @@
 
 #include "efm32gg.h"
 
+
+uint16_t sine_generator(uint16_t frequency, uint16_t phase_offset, uint16_t number_of_samples);
+void startTimer();
 volatile uint8_t wait_flag=0;
 void wait_for_timer(){
     wait_flag=1;
-    while(wait_flag);
+    *GPIO_PA_DOUT = 0x0700;
+    for(int i=0;i<317;i++){
+      *GPIO_PA_DOUT = 0xFF;
+    }
+
 }
 
 void play_sound( uint16_t frequency, uint16_t length){
@@ -22,7 +29,7 @@ void play_sound( uint16_t frequency, uint16_t length){
     }
   }
 }
-
+//melody[0][0] = [number of tones][tempo?]
 void play_melody(uint16_t melody[][2]){
   for(uint8_t tone=1; tone<melody[0][0]; tone++){
     play_sound(melody[tone][0],melody[tone][1]);

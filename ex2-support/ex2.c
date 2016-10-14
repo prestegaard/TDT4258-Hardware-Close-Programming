@@ -36,10 +36,10 @@ int main(void)
 	   instead of infinite loop for busy-waiting
 	 */
 
-	 *SCR=6; //energy mode
+	/* *SCR=6; //energy mode
 	 __asm("WFI");
-
-//	while (1) ;
+*/
+	while (1) ;
 
 	return 0;
 }

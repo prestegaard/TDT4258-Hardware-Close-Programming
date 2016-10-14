@@ -2,7 +2,13 @@
 #include <stdbool.h>
 #include "efm32gg.h"
 #include "resource.h"
+#include "melodies.h"
 
+void startTimer();
+void stopTimer();
+void play_melody();
+
+volatile uint8_t toggle_flag=0;
 
 
 void button_change(){
@@ -29,10 +35,15 @@ void button_change(){
 
 		//sw3
 
-	}/* else if (buttons == 0xF7){
+	} else if (buttons == 0xF7){
 		//sw4
+		startTimer();
+		play_melody(C_chord);
+		//stopTimer();
+		*DAC0_CH0DATA =0;
+		*DAC0_CH1DATA = 0;
 
-	} else if (buttons == 0xEF){
+	}/* else if (buttons == 0xEF){
 		//sw5
 
 	} else if (buttons == 0xDF){
@@ -55,8 +66,20 @@ void button_change(){
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
 	wait_flag = 0;
+
 	*TIMER1_IFC = 1; //clear interrupt
 
+/*
+	if(toggle_flag){
+		toggle_flag=0;
+		*GPIO_PA_DOUT = 0x0700;	// turn on LEDs D4-D8 (LEDs are active low)
+	}
+	else{
+		*GPIO_PA_DOUT = 0xAA00;	// turn on LEDs D4-D8 (LEDs are active low)
+		toggle_flag=1;
+	}
+	*/
+	*TIMER1_IFC = 1; //clear interrupt
 
 
 
