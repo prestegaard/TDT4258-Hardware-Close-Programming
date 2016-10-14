@@ -1,23 +1,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "efm32gg.h"
+#include "resource.h"
 
 
-
-
-static unsigned int t=0;
-static unsigned int freq[n] = {0};
-static unsigned int length = 0;
-
-void startMelody(){
-	length = 441000/4;		//lag struct, og legg inn sanger osv?
-	freq[0] = C6;					//sett på noen andre, funket ikke
-	freq[1] = E6;
-	freq[2] = G6;
-	freq[3] = C7;
-	//startTimer();
-	*TIMER1_CMD = 1;
-}
 
 void button_change(){
 	uint8_t buttons = (*GPIO_PC_DIN & 0xFF);
@@ -25,14 +11,25 @@ void button_change(){
 
 	if(buttons == 0xFE){
 		//sw1
+		*GPIO_PA_DOUT = 0x0700;	/* turn on LEDs D4-D8 (LEDs are active low) */
+		startTimer();
+		//*TIMER1_CMD =1;
 		return;
-	}/* else if (buttons == 0xFD){
+	} else if (buttons == 0xFD){
 		//sw2
+		stopTimer();
 
 	} else if (buttons == 0xFB){
+		for(int i = 0; i < 10000; i++){
+			*DAC0_CH1DATA = i;
+			*DAC0_CH0DATA = i;
+		}
+		*DAC0_CH0DATA =0;
+		*DAC0_CH1DATA = 0;
+
 		//sw3
 
-	} else if (buttons == 0xF7){
+	}/* else if (buttons == 0xF7){
 		//sw4
 
 	} else if (buttons == 0xEF){
@@ -57,7 +54,12 @@ void button_change(){
 /* TIMER1 interrupt handler */
 void __attribute__ ((interrupt)) TIMER1_IRQHandler()
 {
+	wait_flag = 0;
 	*TIMER1_IFC = 1; //clear interrupt
+
+
+
+
 	/*
 	   TODO feed new samples to the DAC
 	   remember to clear the pending interrupt by writing 1 to TIMER1_IFC

@@ -28,7 +28,7 @@ int main(void)
 	setupTimer(SAMPLE_PERIOD);
 
 
-	startMelody();
+	//startMelody();
 	/* Enable interrupt handling */
 	setupNVIC();
 
@@ -47,12 +47,13 @@ int main(void)
 void setupNVIC()
 {
 
-/*	*GPIO_EXTIPSELL = 0x22222222;              //flyttet til gpio.c
+	*GPIO_EXTIPSELL = 0x22222222;
 	*GPIO_EXTIFALL = 0xFF;
 	*GPIO_EXTIRISE = 0xFF;
 	*GPIO_IEN =0xFF;
 
-	*/
+	*TIMER1_IEN = 1;
+	*ISER0 |= ISER0_12;
 	*ISER0 = 0x802;
 
 	/* TODO use the NVIC ISERx registers to enable handling of interrupt(s)
