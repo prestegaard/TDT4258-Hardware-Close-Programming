@@ -11,19 +11,20 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD   317		//	44100/14MHz = 317
+#define   SAMPLE_PERIOD   20	//	44100/14MHz = 317
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
 void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
-
+uint16_t sine_generator(uint16_t frequency, uint16_t phase_offset, uint16_t number_of_samples);
 /* Your code will start executing here */
 int main(void)
 {
 	/* Call the peripheral setup functions */
-	setupGPIO();
+
+   setupGPIO();
 	setupDAC();
 	setupTimer(SAMPLE_PERIOD);
 
@@ -38,8 +39,22 @@ int main(void)
 
 	/* *SCR=6; //energy mode
 	 __asm("WFI");
-*/
-	while (1) ;
+   */
+  
+   uint16_t length_ms=1000;
+	while (1) {
+  /*
+      uint16_t frequency=4000;
+      uint16_t number_of_samples=44100/frequency;
+      uint16_t number_of_iterations=length_ms*frequency/1000;
+      for(uint16_t phase_offset=0; phase_offset<number_of_samples;phase_offset++){
+         uint16_t output=sine_generator(frequency, phase_offset, number_of_samples);
+         *DAC0_CH0DATA=output;
+         *DAC0_CH1DATA=output;
+         //for(int i=0;i<1;i++){}
+      }
+   */
+   }
 
 	return 0;
 }
@@ -52,9 +67,13 @@ void setupNVIC()
 	*GPIO_EXTIRISE = 0xFF;
 	*GPIO_IEN =0xFF;
 
-	*TIMER1_IEN = 1;
-	*ISER0 |= ISER0_12;
-	*ISER0 = 0x802;
+   *TIMER0_IEN = 1;
+	
+   //*TIMER1_IEN = 1;
+	//*ISER0 |= ISER0_12;
+
+	*ISER0 |= ISER0_02;
+   *ISER0 |= 0x802;
 
 	/* TODO use the NVIC ISERx registers to enable handling of interrupt(s)
 	   remember two things are necessary for interrupt handling:

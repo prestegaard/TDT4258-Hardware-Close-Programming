@@ -1,22 +1,82 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "resource.h"
+
 
 #include "efm32gg.h"
 
+void stopTimer0();
+void stopTimer1();
+void startTimer1();
+void sine_set_frequency(uint32_t freq);
+void delay_ms(uint32_t delaytime_ms){
+  uint32_t number_of_ticks=delaytime_ms*1400;
+  while(--number_of_ticks){
+    // __asm("NOP");
+  }
+}
 
-uint16_t sine_generator(uint16_t frequency, uint16_t phase_offset, uint16_t number_of_samples);
-void startTimer();
-volatile uint8_t wait_flag=0;
-void wait_for_timer(){
-    wait_flag=1;
-    *GPIO_PA_DOUT = 0x0700;
-    for(int i=0;i<317;i++){
-      *GPIO_PA_DOUT = 0xFF;
-    }
+void timer_wait_ms(uint16_t msDelay) {
+  /* adjustment factor for 14MHz oscillator, based on the timing of this whole function with speed optimization on, could probably be done in a prettier way. */
+  uint16_t cycle_delay = msDelay * 14 - 28;
+   /* Start TIMER0 */
+  startTimer1();
+  /* Wait until counter value is over top */
+  while(*TIMER1_CNT < cycle_delay){
+  /* Do nothing, just wait */
+  }
+  stopTimer1();
+  *TIMER1_CNT=0;
 
 }
 
+
+void play_tone(uint16_t tone, uint16_t duration){
+  
+  sine_set_frequency(tone);
+
+  //timer_wait_ms(duration);
+  //delay_ms(duration);
+  //stopTimer0();
+}
+
+
+
+//melody[0][0] = [number of tones][tempo/length]
+void play_melody(uint16_t melody[][2]){
+  for(uint8_t tone=1; tone<melody[0][0];){
+    play_tone(melody[tone][0],melody[tone][1]);
+    startTimer1();
+    if(*TIMER1_CNT>=melody[tone][1]){
+      tone++;
+      *TIMER1_CNT=0;
+    }
+  }
+  stopTimer0();
+}
+void play_notes(uint16_t note0, uint16_t note1, uint16_t note2){
+  play_tone(note1, 0);
+  startTimer1();
+  while(*TIMER1_CNT<14000){
+    *TIMER1_CNT=0;
+    break;
+  }
+  play_tone(note1, 0);
+  startTimer1();
+  while(*TIMER1_CNT<14000){
+    *TIMER1_CNT=0;
+    break;
+  }
+  play_tone(note2, 0);
+  startTimer1();
+  while(*TIMER1_CNT<14000){
+    *TIMER1_CNT=0;
+    break;
+  }
+  stopTimer0();
+}
+
+
+/*
 void play_sound( uint16_t frequency, uint16_t length){
   uint16_t number_of_samples=44100/frequency;
   uint16_t number_of_iterations=length*frequency/1000; //Length in milisecond
@@ -28,17 +88,7 @@ void play_sound( uint16_t frequency, uint16_t length){
       *DAC0_CH1DATA=output;
     }
   }
-}
-//melody[0][0] = [number of tones][tempo?]
-void play_melody(uint16_t melody[][2]){
-  for(uint8_t tone=1; tone<melody[0][0]; tone++){
-    play_sound(melody[tone][0],melody[tone][1]);
-  }
-}
-
-
-
-
+}*/
 /*
 void playsound(char* waveform, uint16_t frequency){
   samplethis
