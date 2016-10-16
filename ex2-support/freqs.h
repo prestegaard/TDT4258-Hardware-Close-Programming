@@ -1,6 +1,9 @@
 #ifndef FREQS_H
 #define FREQS_H
 
+#define G2 98
+#define A2 110
+#define B2 123
 
 #define C3 130
 #define Cs3 139

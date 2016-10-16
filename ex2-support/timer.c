@@ -1,6 +1,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "efm32gg.h"
+#include "timer.h"
+
+/* function to setup the timer */
+void setupTimer(uint16_t period)
+{
+	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1;
+	*TIMER1_CTRL = TIMER1_PRESCALE;
+	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER0;
+	*TIMER0_TOP = period;
+	*TIMER1_TOP = period;
+}
+
 
 void startTimer0(){
 	*TIMER0_CMD = 1;
@@ -17,29 +29,23 @@ void startTimer1(){
 }
 
 void stopTimer1(){
-	*TIMER1_CNT = 0;
 	*TIMER1_CMD = 2;
 }
 void shutdownTimer1(){
 	*CMU_HFPERCLKEN0 &= ~CMU2_HFPERCLKEN0_TIMER1;
 }
-/* function to setup the timer */
-void setupTimer(uint16_t period)
-{
-	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER1;
-	//*TIMER1_CTRL |= (1 << 25);
-	//*TIMER1_CTRL |= (1 << 27);
-	*TIMER1_CTRL = TIMER1_PRESCALE;
-	//*TIMER1_TOP = period;	
-	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER0;
-	*TIMER0_TOP = period;
-	*TIMER1_TOP = period;
-}
-	/*
-	   TODO enable and set up the timer
 
-	   1. Enable clock to timer by setting bit 6 in CMU_HFPERCLKEN0
-	   2. Write the period to register TIMER1_TOP
-	   3. Enable timer interrupt generation by writing 1 to TIMER1_IEN
-	   4. Start the timer by writing 1 to TIMER1_CMD
-	*/
+void wait(uint16_t delay_ms){
+   *TIMER1_TOP=14*delay_ms;
+   *TIMER1_CNT = 0;
+   startTimer1();
+   uint8_t next_tone=0;
+   while(!next_tone){
+      __asm("WFI");
+      if(*TIMER1_IF &= (1<<0) ){
+         next_tone=1;
+         *TIMER1_IFC = 1; //clear interrupt   
+      }
+   }
+   stopTimer1();
+}

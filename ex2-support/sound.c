@@ -1,7 +1,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "efm32gg.h"
+
 #include "timer.h"
+#include "dac.h"
 
 
 
@@ -27,8 +29,8 @@ void play_melody(uint16_t melody[][2]){
   double tempo=0;
   if(melody[0][1]!=0){ //tempo mode
     tempo=melody[0][1];
+    tempo = 60/tempo;
     tempo = tempo*1000;
-    tempo = tempo/60;
   }
   for(uint8_t tone=1; tone<=melody[0][0]; tone++){
     if(melody[tone][0]==0){

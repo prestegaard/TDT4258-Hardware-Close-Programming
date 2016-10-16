@@ -11,10 +11,17 @@ LDFLAGS=-mcpu=cortex-m3 -mthumb -g -lgcc -lc -lcs3 -lcs3unhosted -lefm32gg -Llib
 ASFLAGS=-mcpu=cortex-m3 -mthumb -g
 LINKERSCRIPT=lib/efm32gg.ld
 
-ex2.bin : ex2.elf
+#Default make is improved solution
+ex2_improved.bin : ex2_improved.elf
 	${OBJCOPY} -O binary $< $@
 
-ex2.elf : ex2.o timer.o dac.o gpio.o interrupt_handlers.o  sin_gen.o output_sound.o
+ex2_improved.elf : ex2_improved.o timer.o dac.o gpio.o interrupt_handlers_improved.o sound.o
+	${LD} -T ${LINKERSCRIPT} $^ -o $@ ${LDFLAGS}
+
+ex2_baseline.bin : ex2_baseline.elf
+	${OBJCOPY} -O binary $< $@
+
+ex2_baseline.elf : ex2_baseline.o timer.o dac.o gpio.o interrupt_handlers_baseline.o sound.o
 	${LD} -T ${LINKERSCRIPT} $^ -o $@ ${LDFLAGS}
 
 %.o : %.c
@@ -24,9 +31,18 @@ ex2.elf : ex2.o timer.o dac.o gpio.o interrupt_handlers.o  sin_gen.o output_soun
 pretty :
 	-indent *.c *.h
 
+#Default upload is improved solution
 .PHONY : upload
 upload :
-	-eACommander.sh -r --address 0x00000000 -f "ex2.bin" -r
+	-eACommander.sh -r --address 0x00000000 -f "ex2_improved.bin" -r
+
+.PHONY : upload_improved
+upload_imroved :
+	-eACommander.sh -r --address 0x00000000 -f "ex2_improved.bin" -r
+
+.PHONY : upload_baseline
+upload_baseline :
+	-eACommander.sh -r --address 0x00000000 -f "ex2_baseline.bin" -r
 
 .PHONY : clean
 clean :
