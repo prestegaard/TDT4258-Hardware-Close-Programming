@@ -4,4 +4,4 @@
 extern volatile uint8_t mode;
 extern volatile double volume;
 
-#endif /* GLOBAL_VAR_H */
+#endif				/* GLOBAL_VAR_H */

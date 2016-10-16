@@ -2,8 +2,8 @@
 #define DAC_H
 
 void setupDAC();
-void resetDAC();
+void shutdownDAC();
 void enableDAC();
 void disableDAC();
 
-#endif /* DAC_H */
+#endif				/* DAC_H */

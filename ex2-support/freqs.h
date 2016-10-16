@@ -44,6 +44,7 @@
 #define As5 932
 #define B5 988
 
+#define C6 1047
 /*
 #define C
 #define Cs
@@ -59,4 +60,4 @@
 #define B
 */
 
-#endif /* FREQS_H */
+#endif				/* FREQS_H */

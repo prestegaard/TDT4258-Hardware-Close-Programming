@@ -23,7 +23,8 @@ ENTRY(__cs3_reset)
 MEMORY
 {
   rom (rx) : ORIGIN = 0x00000000, LENGTH = 1048576
-  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 131072
+  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 32767 /* force system to only use one ram block. */
+/* ram (rwx) : ORIGIN = 0x20000000, LENGTH = 131072 */
 }
 
 /* These force the linker to search for particular symbols from

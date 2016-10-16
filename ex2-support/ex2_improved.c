@@ -9,47 +9,106 @@
 #include "melodies.h"
 #include "sound.h"
 
+void setupNVIC();
 /* Your code will start executing here */
-volatile uint8_t mode=0;
+volatile uint8_t mode = 0;
 //default volume is 1, differs from 0-2 (0.1 stepsize)
-volatile double volume=1;
-
+volatile double volume = 1;
 int main(void)
 {
-   /* Call the peripheral setup functions */
-   
-   setupGPIO();
-   setupDAC();
-   setupTimer(1000);
+	/* Call the peripheral setup functions */
 
-	//startMelody();
+	setupGPIO();
+	setupDAC();
+	setupTimer(1000);
+
 	/* Enable interrupt handling */
 	setupNVIC();
 
-	/* TODO for higher energy efficiency, sleep while waiting for interrupts
-	   instead of infinite loop for busy-waiting
-	 */
+   /* Start up melody */
+	play_melody(C_chord);
 
-	 //*SCR |= 6; //energy mode
-   while (1) {
-      __asm("WFI");
-      if(mode==1){
-         play_melody(C_chord);
-       
-         mode=0;
-      }
-      if(mode==4){
-         play_melody(lisa_gikk_til_skolen);
-         mode=0;
-      }
-      else if(mode ==0){
-         *GPIO_PA_DOUT = 0x0700; 
-      }
-      /*
-      
-      */
-   }
-   
+   // Energy mode EM2
+	*SCR = 6;		
+
+	// Turn of RAM Block 1-3
+	*EMU_MEMCTRL = 7;
+
+	while (1) {
+		mode = 0;
+		*SCR |= 6;
+		__asm("WFI");
+
+		if (mode == 1) { //Play C chord
+			play_melody(C_chord);
+		} 
+      else if (mode == 2) { //Turn volume up
+			if (volume <= 15) {
+				volume = volume + 0.1;
+			}
+         play_melody(beep);
+		} 
+      else if (mode == 3) { //Play Lisa gikk til skolen
+			play_melody(lisa_gikk_til_skolen);
+		}
+      else if (mode == 4) { //Turn volume down
+			if (volume >= 0) {
+				volume = volume - 0.1;
+			}
+         play_melody(beep);
+		} 
+      else if (mode == 5) { //Play Star Wars main theme
+			play_melody(star_wars_theme);
+
+		} 
+      else if (mode == 6) { //Sweep up
+         enableDAC();
+			startTimer0();
+         uint8_t buttons = button_status();
+         uint16_t freq=C3;
+         while(buttons == button6){
+            sine_set_frequency(freq);
+            freq++;
+            if(freq==C6)
+               freq=C3;
+            wait(5);
+            buttons =button_status();
+         }
+         disableDAC();
+         stopTimer0();
+		} 
+      else if (mode == 7) { //Crunsh sound
+         enableDAC();
+			for (int j = 0; j < 20; j++) {
+				for (int i = 0; i < 5000; i++) {
+					*DAC0_CH1DATA = i;
+					*DAC0_CH0DATA = i;
+				}
+				for (int i = 0; i < 5000; i++) {
+					*DAC0_CH1DATA = 5000 - i;
+					*DAC0_CH0DATA = 5000 - i;
+				}
+			}
+         disableDAC();
+		} 
+      else if (mode == 8) { //Sweep down
+         enableDAC();
+         startTimer0();
+         uint8_t buttons = button_status();
+         uint16_t freq=C5;
+         while(buttons == button8){
+            sine_set_frequency(freq);
+            freq--;
+            if(freq==0)
+               freq=C5;
+            wait(5);
+            buttons =button_status();
+         }
+         disableDAC();
+         stopTimer0();
+		}
+
+	}
 
 	return 0;
 }
@@ -60,76 +119,13 @@ void setupNVIC()
 	*GPIO_EXTIPSELL = 0x22222222;
 	*GPIO_EXTIFALL = 0xFF;
 	*GPIO_EXTIRISE = 0xFF;
-	*GPIO_IEN =0xFF;
+	*GPIO_IEN = 0xFF;
 
-   *TIMER0_IEN = 1;	
-  // *TIMER1_IEN = 1;
+	*TIMER0_IEN = 1;
+	// *TIMER1_IEN = 1;
 
-   *ISER0 |= ISER0_02;
+	*ISER0 |= ISER0_02;
 	//*ISER0 |= ISER0_12;
-   *ISER0 |= 0x802;
+	*ISER0 |= 0x802;
 
-	/* TODO use the NVIC ISERx registers to enable handling of interrupt(s)
-	   remember two things are necessary for interrupt handling:
-	   - the peripheral must generate an interrupt signal
-	   - the NVIC must be configured to make the CPU handle the signal
-	   You will need TIMER1, GPIO odd and GPIO even interrupt handling for this
-	   assignment.
-	 */
 }
-
-/* if other interrupt handlers are needed, use the following names:
-   NMI_Handler
-   HardFault_Handler
-   MemManage_Handler
-   BusFault_Handler
-   UsageFault_Handler
-   Reserved7_Handler
-   Reserved8_Handler
-   Reserved9_Handler
-   Reserved10_Handler
-   SVC_Handler
-   DebugMon_Handler
-   Reserved13_Handler
-   PendSV_Handler
-   SysTick_Handler
-   DMA_IRQHandler
-   GPIO_EVEN_IRQHandler
-   TIMER0_IRQHandler
-   USART0_RX_IRQHandler
-   USART0_TX_IRQHandler
-   USB_IRQHandler
-   ACMP0_IRQHandler
-   ADC0_IRQHandler
-   DAC0_IRQHandler
-   I2C0_IRQHandler
-   I2C1_IRQHandler
-   GPIO_ODD_IRQHandler
-   TIMER1_IRQHandler
-   TIMER2_IRQHandler
-   TIMER3_IRQHandler
-   USART1_RX_IRQHandler
-   USART1_TX_IRQHandler
-   LESENSE_IRQHandler
-   USART2_RX_IRQHandler
-   USART2_TX_IRQHandler
-   UART0_RX_IRQHandler
-   UART0_TX_IRQHandler
-   UART1_RX_IRQHandler
-   UART1_TX_IRQHandler
-   LEUART0_IRQHandler
-   LEUART1_IRQHandler
-   LETIMER0_IRQHandler
-   PCNT0_IRQHandler
-   PCNT1_IRQHandler
-   PCNT2_IRQHandler
-   RTC_IRQHandler
-   BURTC_IRQHandler
-   CMU_IRQHandler
-   VCMP_IRQHandler
-   LCD_IRQHandler
-   MSC_IRQHandler
-   AES_IRQHandler
-   EBI_IRQHandler
-   EMU_IRQHandler
-*/
