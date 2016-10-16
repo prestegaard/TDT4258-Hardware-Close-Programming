@@ -33,6 +33,7 @@ void setupTimer(uint16_t period)
 	//*TIMER1_TOP = period;	
 	*CMU_HFPERCLKEN0 |= CMU2_HFPERCLKEN0_TIMER0;
 	*TIMER0_TOP = period;
+	*TIMER1_TOP = period;
 }
 	/*
 	   TODO enable and set up the timer

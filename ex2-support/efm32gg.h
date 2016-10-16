@@ -74,6 +74,7 @@
 #define TIMER1_CTRL ((volatile uint32_t*)(TIMER1_BASE + 0x0))
 #define TIMER1_CMD ((volatile uint32_t*)(TIMER1_BASE + 0x04))
 #define TIMER1_IEN ((volatile uint32_t*)(TIMER1_BASE + 0x0c))
+#define TIMER1_IF  ((volatile uint32_t*)(TIMER1_BASE + 0x10))
 #define TIMER1_IFC ((volatile uint32_t*)(TIMER1_BASE + 0x18))
 #define TIMER1_TOP ((volatile uint32_t*)(TIMER1_BASE + 0x1c))
 #define TIMER1_CNT ((volatile uint32_t*)(TIMER1_BASE + 0x24))

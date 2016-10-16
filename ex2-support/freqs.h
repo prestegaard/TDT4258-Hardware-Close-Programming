@@ -1,4 +1,5 @@
-
+#ifndef FREQS_H
+#define FREQS_H
 
 
 #define C3 130
@@ -54,3 +55,5 @@
 #define As
 #define B
 */
+
+#endif /* FREQS_H */

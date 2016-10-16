@@ -30,3 +30,12 @@ void resetDAC()
 	*DAC0_CH1CTRL = 0; /* disable right audio channel */
 
 }
+void enableDAC(){
+	*DAC0_CH0CTRL = 1; /* enable left  audio channel */
+	*DAC0_CH1CTRL = 1; /* enable right audio channel */
+}
+void disableDAC(){
+	*DAC0_CH0CTRL = 0; /* disable left  audio channel */
+	*DAC0_CH1CTRL = 0; /* disable right audio channel */
+}
+

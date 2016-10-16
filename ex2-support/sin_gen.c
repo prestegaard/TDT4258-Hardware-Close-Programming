@@ -14,17 +14,17 @@ int16_t sine_generator(uint16_t frequency, uint16_t phase_offset, uint16_t numbe
 }
 
 void sine_set_frequency(uint32_t freq){
-  uint32_t TimerTopValue;
-  /* Get peripheral clock frequency */
-  uint32_t hfperFreq = 14000000;
+	uint32_t TimerTopValue;
+	/* Get peripheral clock frequency */
+	uint32_t hfperFreq = 14000000;
 
-  /* Calculate new timer top value */
-  TimerTopValue = (hfperFreq >> 6) / freq;
+	/* Calculate new timer top value */
+	TimerTopValue = (hfperFreq >> 6) / freq;
 
-if (TimerTopValue > 0xffff)
-  {
-    TimerTopValue = 0xffff;
-  }
+	if (TimerTopValue > 0xffff)
+	{
+		TimerTopValue = 0xffff;
+	}
 
-  	*TIMER0_TOP = TimerTopValue;
+	*TIMER0_TOP = TimerTopValue;
 }

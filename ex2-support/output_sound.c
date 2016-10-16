@@ -1,34 +1,29 @@
 #include <stdint.h>
 #include <stdbool.h>
-
-
 #include "efm32gg.h"
 
 void stopTimer0();
 void stopTimer1();
+void startTimer0();
 void startTimer1();
+void enableDAC();
+void disableDAC();
 void sine_set_frequency(uint32_t freq);
-void delay_ms(uint32_t delaytime_ms){
-  uint32_t number_of_ticks=delaytime_ms*1400;
-  while(--number_of_ticks){
-    // __asm("NOP");
-  }
+
+void wait_for_timer(uint16_t delay_ms){
+   *TIMER1_TOP=14*delay_ms;
+   *TIMER1_CNT = 0;
+   *TIMER1_CMD = 1;
+   uint8_t next_tone=0;
+   while(!next_tone){
+      __asm("WFI");
+      if(*TIMER1_IF &= (1<<0) ){
+         next_tone=1;
+         *TIMER1_IFC = 1; //clear interrupt   
+      }
+   }
+   *TIMER1_CMD = 2;
 }
-
-void timer_wait_ms(uint16_t msDelay) {
-  /* adjustment factor for 14MHz oscillator, based on the timing of this whole function with speed optimization on, could probably be done in a prettier way. */
-  uint16_t cycle_delay = msDelay * 14 - 28;
-   /* Start TIMER0 */
-  startTimer1();
-  /* Wait until counter value is over top */
-  while(*TIMER1_CNT < cycle_delay){
-  /* Do nothing, just wait */
-  }
-  stopTimer1();
-  *TIMER1_CNT=0;
-
-}
-
 
 void play_tone(uint16_t tone, uint16_t duration){
   
@@ -43,38 +38,32 @@ void play_tone(uint16_t tone, uint16_t duration){
 
 //melody[0][0] = [number of tones][tempo/length]
 void play_melody(uint16_t melody[][2]){
-  for(uint8_t tone=1; tone<melody[0][0];){
-    play_tone(melody[tone][0],melody[tone][1]);
-    startTimer1();
-    if(*TIMER1_CNT>=melody[tone][1]){
-      tone++;
-      *TIMER1_CNT=0;
+  startTimer0();
+  double tempo=0;
+  if(melody[0][1]!=0){ //tempo mode
+    tempo=melody[0][1];
+    tempo = tempo*1000;
+    tempo = tempo/60;
+  }
+  for(uint8_t tone=1; tone<=melody[0][0]; tone++){
+    if(melody[tone][0]==0){
+      disableDAC();
+    }
+    else{
+      enableDAC();
+      sine_set_frequency(melody[tone][0]);
+      
+    }
+    if(tempo){
+      uint16_t duration = (uint16_t)tempo/melody[tone][1];
+      wait_for_timer(duration);
+    }
+    else{
+      wait_for_timer(melody[tone][1]);
     }
   }
   stopTimer0();
 }
-void play_notes(uint16_t note0, uint16_t note1, uint16_t note2){
-  play_tone(note1, 0);
-  startTimer1();
-  while(*TIMER1_CNT<14000){
-    *TIMER1_CNT=0;
-    break;
-  }
-  play_tone(note1, 0);
-  startTimer1();
-  while(*TIMER1_CNT<14000){
-    *TIMER1_CNT=0;
-    break;
-  }
-  play_tone(note2, 0);
-  startTimer1();
-  while(*TIMER1_CNT<14000){
-    *TIMER1_CNT=0;
-    break;
-  }
-  stopTimer0();
-}
-
 
 /*
 void play_sound( uint16_t frequency, uint16_t length){

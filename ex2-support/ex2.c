@@ -1,9 +1,9 @@
 #include <stdint.h>
 #include <stdbool.h>
-
-
 #include "efm32gg.h"
-
+#include "resource.h"
+#include "melodies.h"
+//#include "freqs.h"
 /*
   TODO calculate the appropriate sample period for the sound wave(s)
   you want to generate. The core clock (which the timer clock is derived
@@ -11,23 +11,30 @@
   registers are 16 bits.
 */
 /* The period between sound samples, in clock cycles */
-#define   SAMPLE_PERIOD   20	//	44100/14MHz = 317
+#define   SAMPLE_PERIOD   317	//	44100/14MHz = 317
 
 /* Declaration of peripheral setup functions */
 void setupGPIO();
 void setupTimer(uint32_t period);
 void setupDAC();
 void setupNVIC();
-uint16_t sine_generator(uint16_t frequency, uint16_t phase_offset, uint16_t number_of_samples);
+void play_melody(uint16_t melody[][2]);
+void sine_set_frequency(uint32_t freq);
+void startTimer0();
+void stopTimer0();
+void wait_for_timer(uint16_t delay_ms);
 /* Your code will start executing here */
+volatile uint8_t mode=0;
+
+
+
 int main(void)
 {
-	/* Call the peripheral setup functions */
-
+   /* Call the peripheral setup functions */
+   
    setupGPIO();
-	setupDAC();
-	setupTimer(SAMPLE_PERIOD);
-
+   setupDAC();
+   setupTimer(SAMPLE_PERIOD);
 
 	//startMelody();
 	/* Enable interrupt handling */
@@ -37,24 +44,37 @@ int main(void)
 	   instead of infinite loop for busy-waiting
 	 */
 
-	/* *SCR=6; //energy mode
-	 __asm("WFI");
-   */
-  
-   uint16_t length_ms=1000;
-	while (1) {
-  /*
-      uint16_t frequency=4000;
-      uint16_t number_of_samples=44100/frequency;
-      uint16_t number_of_iterations=length_ms*frequency/1000;
-      for(uint16_t phase_offset=0; phase_offset<number_of_samples;phase_offset++){
-         uint16_t output=sine_generator(frequency, phase_offset, number_of_samples);
-         *DAC0_CH0DATA=output;
-         *DAC0_CH1DATA=output;
-         //for(int i=0;i<1;i++){}
+	 //*SCR |= 6; //energy mode
+   while (1) {
+      __asm("WFI");
+      if(mode==1){
+         play_melody(C_chord);
+        /*
+         startTimer0();
+         sine_set_frequency(A3);
+         wait_for_timer(150);
+         sine_set_frequency(C4);
+         wait_for_timer(150);
+         sine_set_frequency(E4);
+         wait_for_timer(300);
+         sine_set_frequency(A4);
+         wait_for_timer(300);
+         stopTimer0();
+         */
+         mode=0;
       }
-   */
+      if(mode==4){
+         play_melody(lisa_gikk_til_skolen);
+         mode=0;
+      }
+      else if(mode ==0){
+         *GPIO_PA_DOUT = 0x0700; 
+      }
+      /*
+      
+      */
    }
+   
 
 	return 0;
 }
@@ -67,12 +87,11 @@ void setupNVIC()
 	*GPIO_EXTIRISE = 0xFF;
 	*GPIO_IEN =0xFF;
 
-   *TIMER0_IEN = 1;
-	
-   //*TIMER1_IEN = 1;
-	//*ISER0 |= ISER0_12;
+   *TIMER0_IEN = 1;	
+  // *TIMER1_IEN = 1;
 
-	*ISER0 |= ISER0_02;
+   *ISER0 |= ISER0_02;
+	//*ISER0 |= ISER0_12;
    *ISER0 |= 0x802;
 
 	/* TODO use the NVIC ISERx registers to enable handling of interrupt(s)
