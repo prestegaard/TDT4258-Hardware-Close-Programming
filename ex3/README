@@ -1,0 +1,32 @@
+Build instructions
+==================
+
+First, specify the platform and toolchain configurations for the project:
+
+	cd /path/to/OSELAS.BSP-EnergyMicro-Gecko
+	ptxdist select configs/ptxconfig
+	ptxdist platform configs/platform-energymicro-efm32gg-dk3750/platformconfig
+	ptxdist toolchain <path_to_toolchain_bin_dir> 
+
+	
+where <path_to_toolchain_bin_dir> is 
+
+/opt/ex3/OSELAS.Toolchain-2012.12.0/arm-cortexm3-uclinuxeabi/gcc-4.7.2-uclibc-0.9.33.2-binutils-2.22-kernel-3.6-sanitized/bin
+
+for the TDT4258 virtual machine. You can ignore the "no toolchain found" error on the third step.
+
+Finally, to build the flashable images, issue:
+
+	ptxdist images
+
+This takes some time now. After ptxdist is completed and you plugged your Gecko
+board to your machine, first make sure that the debug mode is set to "MCU".
+(Press the "CFG" button under the display, then select "MCU" for "Debug
+Control" and save.) Then you can do
+
+    ptxdist test flash-all
+
+to write the built images into the Gecko's flash and boot into Linux.
+Note that this uses Energymicro's eACommander which needs 32-bit Qt
+installed. See the compendium for more detailed information.
+
