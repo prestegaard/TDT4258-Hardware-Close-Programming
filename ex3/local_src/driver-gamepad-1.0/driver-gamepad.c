@@ -8,7 +8,10 @@
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/ioport.h>
+#include <linux/io.h>
 #include <linux/cdev.h>
+#include <linux/sched.h>
+#include <linux/types.h>
 #include <linux/device.h>
 #include <linux/moduleparam.h>
 #include <linux/kdev_t.h>
@@ -25,7 +28,7 @@
 #define DEV_COUNT 1
 #define DRIVER_NAME "gamepad"
 #define GPIO_EVEN_IRQ 17
-#define GPIO_ODD_IRQ 16
+#define GPIO_ODD_IRQ 18
 
 static dev_t dev_number;
 struct fasync_struct* async_queue;
@@ -68,8 +71,8 @@ irqreturn_t gpio_interrupt_handler(int irq, void* dev_id, struct pt_regs* regs){
 	printk(KERN_INFO "Button is pressed");
 		if (async_queue) {
 			kill_fasync(&async_queue, SIGIO, POLL_IN);
-		}	
-	return IRQ_HANDLED; 
+		}
+	return IRQ_HANDLED;
 }
 
 
@@ -100,7 +103,7 @@ static int __init gamepad_init(void){
 	cdev_add(&gamepad_cdev, dev_number, DEV_COUNT);
 
 	//DRIVER = File
-	printk("Creating class");
+	printk("Creating class\n");
 	cl = class_create(THIS_MODULE, DRIVER_NAME);
 	//device_create(class, parent, devt, fmt)
 	device_create(cl, NULL, dev_number, NULL, DRIVER_NAME);
@@ -111,7 +114,7 @@ static int __init gamepad_init(void){
 
 	//setup interrupts
 	//request_irq(irq, handler, irqflags, devname, dev_id)
-	printk("setting up interrupts");
+	printk("setting up interrupts\n");
 	request_irq(GPIO_EVEN_IRQ, (irq_handler_t)gpio_interrupt_handler, 0, DRIVER_NAME, &gamepad_cdev);
 	request_irq(GPIO_ODD_IRQ, (irq_handler_t)gpio_interrupt_handler, 0, DRIVER_NAME, &gamepad_cdev);
 
@@ -134,12 +137,12 @@ static int __init gamepad_init(void){
  */
 
 static void __exit gamepad_cleanup(void){
-	printk("Disable interrupts");
+	printk("Disable interrupts\n");
 	iowrite32(0x0000, GPIO_IEN);
 	free_irq(GPIO_ODD_IRQ, &gamepad_cdev);
 	free_irq(GPIO_EVEN_IRQ, &gamepad_cdev);
 
-	printk("destroy class");
+	printk("destroy class\n");
 	device_destroy(cl, dev_number);
 	class_destroy(cl);
 	cdev_del(&gamepad_cdev);
