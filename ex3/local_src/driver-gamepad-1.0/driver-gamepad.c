@@ -68,7 +68,7 @@ static struct file_operations gamepad_fops = {
 
 irqreturn_t gpio_interrupt_handler(int irq, void* dev_id, struct pt_regs* regs){
 	iowrite32(ioread32(GPIO_IF), GPIO_IFC);
-	printk(KERN_INFO "Button is pressed");
+	printk(KERN_INFO "Interrupt: Button is toggled\n");
 		if (async_queue) {
 			kill_fasync(&async_queue, SIGIO, POLL_IN);
 		}
@@ -82,11 +82,13 @@ static int gamepad_fasync(int fd, struct file* filp, int mode) {
 
 
 static int __init gamepad_init(void){
-	dev_number = alloc_chrdev_region(&dev_number, BASE_MINOR, DEV_COUNT, DRIVER_NAME);
-	if ( dev_number < 0){
+	int number;
+	number = alloc_chrdev_region(&dev_number, BASE_MINOR, DEV_COUNT, DRIVER_NAME);
+	if ( number < 0){
 		printk(KERN_ALERT "feilmelding alloc_chdev_region\n");
 		return -1;
 	}
+
 
 	//request_mem_region(start, length of region, name)
 	//requesting control of entire PC register
@@ -168,7 +170,8 @@ static int gamepad_release(struct inode *inode, struct file* filp){
 //Read buttons, return to user
 static ssize_t gamepad_read(struct file* filp, char* __user buffer,
         size_t length, loff_t *offset){
+	printk(KERN_INFO "Gamepad read function called\n");
     uint32_t button_state = ioread32(GPIO_PC_DIN);
-    copy_to_user(buffer, &button_state, length);
+    copy_to_user(buffer, &button_state, 1);
     return 1;
 }
