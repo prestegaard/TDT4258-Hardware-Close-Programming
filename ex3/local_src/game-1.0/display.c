@@ -10,17 +10,13 @@
 #include <sys/mman.h>
 #include "display.h"
 
-#define DISPLAY_H 240
-#define DISPLAY_W 320
-#define DISPLAY_PIXELS 76800
-#define DISPLAY_BYTES 153600
+
 
 uint16_t *fbmmap;
 int fbfd;
-//uint16_t* fbp;
 struct fb_copyarea rect;
 
-struct monaLisa
+struct gameBoard
 {
 	int x;
 	int y;
@@ -31,6 +27,10 @@ struct monaLisa
 
 
 int setupFB(){
+	char remove_cursor_blink[50];
+	strcpy( remove_cursor_blink, "echo 0 > /sys/class/graphics/fbcon/cursor_blink");
+	system(remove_cursor_blink);
+
 	fbfd = open("/dev/fb0", O_RDWR);
 	if (fbfd < 0){
 		printf("error opening Framebuffer\n");
@@ -85,4 +85,16 @@ void fillBackground(uint8_t R, uint8_t G, uint8_t B){
 
 	drawRect(0,0, DISPLAY_W, DISPLAY_H);
 
+}
+
+void fill_rectangle(uint16_t x_pos_left, uint16_t x_pos_right, 
+		uint16_t y_pos_top, uint16_t y_pos_bottom, uint8_t R, uint8_t G, uint8_t B){
+	uint16_t y;
+	uint16_t x;
+	uint16_t color = mapRGB(R,G,B);
+	for(y=y_pos_top; y<=y_pos_bottom; y++){
+		for(x=x_pos_left; x <= x_pos_right; x++){
+			fbmmap[y*DISPLAY_W + x]=color;
+		}
+	}
 }

@@ -14,10 +14,10 @@
 int device;
 
 int map_input(int);
-
-
-
 void gamepad_signal_handler(int);
+
+
+
 
 
 int main(int argc, char *argv[])
@@ -106,6 +106,10 @@ void gamepad_signal_handler(int signo){
     }
     if (buttons[1] == 1){
     	fillBackground(0,63,0);
+    }
+    if (buttons[2] == 1){
+    	fill_rectangle(50, 55, 100, 200, 0, 0, 31);
+    	drawRect(0,0,DISPLAY_W, DISPLAY_H);
     }
 }
 

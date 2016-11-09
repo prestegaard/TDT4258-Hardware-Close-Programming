@@ -15,7 +15,7 @@ OBJECTS = display.o
 all: game
 
 game: ${OBJECTS}
-${CC} ${CFLAGS} game.c ${OBJECTS} -o game ${LDFLAGS}
+	${CC} ${CFLAGS} game.c ${OBJECTS} -o game ${LDFLAGS}
 clean:
 	-rm -f game
 
