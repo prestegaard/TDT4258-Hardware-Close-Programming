@@ -10,9 +10,12 @@ CFLAGS += -O2 -g -Wall #-Wsign-compare -Wfloat-equal -Wformat-security #-Werror
 CPPFLAGS +=
 LDFLAGS +=
 
+OBJECTS = display.o
 
 all: game
 
+game: ${OBJECTS}
+${CC} ${CFLAGS} game.c ${OBJECTS} -o game ${LDFLAGS}
 clean:
 	-rm -f game
 
