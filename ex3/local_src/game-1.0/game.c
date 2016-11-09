@@ -1,3 +1,4 @@
+#include "display.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,25 +11,14 @@
 #include <sys/mman.h>
 
 
-int fbfd;
-//uint16_t* fbp;
-struct fb_copyarea rect;
 int device;
-uint16_t *fbmmap;
+
 int map_input(int);
 
-struct monaLisa
-{
-	int x;
-	int y;
-	int width;
-	int height;
-	uint16_t *pixelarray;
-};
+
 
 void gamepad_signal_handler(int);
-void setupFB();
-void drawRect(dx, dy, width, height);
+
 
 int main(int argc, char *argv[])
 {
@@ -60,6 +50,7 @@ int main(int argc, char *argv[])
 	}
 
 
+
 	printf("Hello World, I'm game!\n");
 	while(1){
 		usleep(16667);
@@ -69,25 +60,9 @@ int main(int argc, char *argv[])
 	exit(EXIT_SUCCESS);
 }
 
-void setupFB(){
-	fbfd = open("/dev/fb0", O_RDWR);
-	if (fbfd < 0){
-		printf("error opening Framebuffer");
-	}
-	printf("Framebuffer opened\n");
-	fbmmap = (uint16_t*)mmap(NULL,320*240*2,PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-
-}
 
 
-void drawRect(dx, dy, width, height){
-	rect.dx = dx;
-	rect.dy = dy;
-	rect.width = width;
-	rect.height = height;
-	ioctl(fbfd, 0x4680, &rect); //update display
-	printf("display is updated\n");
-}
+
 /*
 void paintTest(struct monaLisa *Painting){
 	int i;
@@ -110,22 +85,12 @@ void paintTest(struct monaLisa *Painting){
 }
 */
 
-int map_input(int input){
-    input = ~input;
-    uint8_t i;
-    for (i = 0; i < 8; i++) {
-        uint8_t match = input & (1 << i);
-        if ( (1 << i) == match ) {
-            return (i+1);
-        }
-    }
-    return 0;
-}
+
 
 void gamepad_signal_handler(int signo){
 	//int input_signal=fgetc(device);
 	int input_signal;
-	read(device, input_signal,4);
+	read(device, &input_signal,1);
 	input_signal = ~input_signal;
     uint8_t i;
     uint8_t buttons[8]={0};
@@ -135,4 +100,8 @@ void gamepad_signal_handler(int signo){
         }
 		printf("buttons[%d] = %d \n", i+1, buttons[i]);
     }
+    if (buttons[0] == 1){
+    	fillBackground(31,0,25);
+    }
 }
+

@@ -169,9 +169,9 @@ static int gamepad_release(struct inode *inode, struct file* filp){
 
 //Read buttons, return to user
 static ssize_t gamepad_read(struct file* filp, char* __user buffer,
-        size_t length, loff_t *offset){
+        size_t count, loff_t *offset){
 	printk(KERN_INFO "Gamepad read function called\n");
-    uint32_t button_state = ioread32(GPIO_PC_DIN);
-    copy_to_user(buffer, &button_state, 1);
+    uint8_t button_state = ioread8(GPIO_PC_DIN);		//only read the LSB
+    copy_to_user(buffer, &button_state, count);
     return 1;
 }
