@@ -1,4 +1,3 @@
-#include "display.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -9,6 +8,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/mman.h>
+#include "display.h"
 
 
 int device;
@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
         printf("Error setting FASYNC flag.\n");
         return EXIT_FAILURE;
 	}
+	setupFB();
 
 
 
@@ -102,6 +103,9 @@ void gamepad_signal_handler(int signo){
     }
     if (buttons[0] == 1){
     	fillBackground(31,0,25);
+    }
+    if (buttons[1] == 1){
+    	fillBackground(0,63,0);
     }
 }
 

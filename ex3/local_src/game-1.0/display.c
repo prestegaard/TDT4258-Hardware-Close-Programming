@@ -1,8 +1,19 @@
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <linux/fb.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/mman.h>
+#include "display.h"
 
 #define DISPLAY_H 240
 #define DISPLAY_W 320
-#define DISPLAY_PIXELS 26800
+#define DISPLAY_PIXELS 76800
+#define DISPLAY_BYTES 153600
 
 uint16_t *fbmmap;
 int fbfd;
@@ -19,17 +30,18 @@ struct monaLisa
 };
 
 
-void setupFB(){
+int setupFB(){
 	fbfd = open("/dev/fb0", O_RDWR);
 	if (fbfd < 0){
-		printf("error opening Framebuffer");
+		printf("error opening Framebuffer\n");
 	}
 	printf("Framebuffer opened\n");
 	fbmmap = (uint16_t*)mmap(NULL,320*240*2,PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-	if ((int)fbmmap = MAP_FAILED) {
-		printf(fbmmap failed);
+	if ((int)fbmmap == MAP_FAILED) {
+		printf("fbmmap failed\n");
 		return EXIT_FAILURE;
 	} 
+	return EXIT_SUCCESS;
 }
 
 uint16_t mapRGB(uint8_t R, uint8_t G, uint8_t B){
@@ -71,6 +83,6 @@ void fillBackground(uint8_t R, uint8_t G, uint8_t B){
 		fbmmap[pixels] = color;
 	}
 
-	drawRect(0,0, DISPLAY_W, DISPLAY_H)
+	drawRect(0,0, DISPLAY_W, DISPLAY_H);
 
 }
