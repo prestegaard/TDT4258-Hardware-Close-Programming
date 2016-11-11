@@ -16,14 +16,7 @@ uint16_t *fbmmap;
 int fbfd;
 struct fb_copyarea rect;
 
-struct gameBoard
-{
-	int x;
-	int y;
-	int width;
-	int height;
-	uint16_t *pixelarray;
-};
+
 
 
 int setupFB(){
@@ -65,11 +58,11 @@ uint16_t mapRGB(uint8_t R, uint8_t G, uint8_t B){
 	return mapped_RGB;
 }
 
-void drawRect(uint16_t dx,uint16_t dy,uint16_t width,uint16_t height){
-	rect.dx = dx;
-	rect.dy = dy;
-	rect.width = width;
-	rect.height = height;
+void updateDisplay(Rectangle rectangle){
+	rect.dx = rectangle.dx;
+	rect.dy = rectangle.dy;
+	rect.width = rectangle.width;
+	rect.height = rectangle.height;
 	ioctl(fbfd, 0x4680, &rect); //update display
 	printf("display is updated\n");
 }
@@ -83,18 +76,19 @@ void fillBackground(uint8_t R, uint8_t G, uint8_t B){
 		fbmmap[pixels] = color;
 	}
 
-	drawRect(0,0, DISPLAY_W, DISPLAY_H);
+	//drawRect(0,0, DISPLAY_W, DISPLAY_H);
 
 }
 
-void fill_rectangle(uint16_t x_pos_left, uint16_t x_pos_right, 
-		uint16_t y_pos_top, uint16_t y_pos_bottom, uint8_t R, uint8_t G, uint8_t B){
+void fill_rectangle(Rectangle rectangle, Color color){
 	uint16_t y;
 	uint16_t x;
-	uint16_t color = mapRGB(R,G,B);
-	for(y=y_pos_top; y<=y_pos_bottom; y++){
-		for(x=x_pos_left; x <= x_pos_right; x++){
-			fbmmap[y*DISPLAY_W + x]=color;
+	uint16_t color_mapped = mapRGB(color.R, color.G, color.B);
+	for(y=rectangle.dy; y<=rectangle.height; y++){
+		for(x=rectangle.dx; x <= rectangle.width; x++){
+			fbmmap[y*DISPLAY_W + x]=color_mapped;
 		}
 	}
 }
+//	uint16_t x_pos_left, uint16_t x_pos_right, 
+//		uint16_t y_pos_top, uint16_t y_pos_bottom, uint8_t R, uint8_t G, uint8_t B){

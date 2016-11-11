@@ -16,6 +16,25 @@ int device;
 int map_input(int);
 void gamepad_signal_handler(int);
 
+Rectangle rectang={
+	60,
+	20,
+	260,
+	220
+};
+
+Rectangle fullscreen={
+	0,
+	00,
+	320,
+	240
+};
+
+Color red={
+	31,
+	0,
+	0
+};
 
 
 
@@ -103,13 +122,21 @@ void gamepad_signal_handler(int signo){
     }
     if (buttons[0] == 1){
     	fillBackground(31,0,25);
+    	updateDisplay(fullscreen);
     }
     if (buttons[1] == 1){
     	fillBackground(0,63,0);
+    	updateDisplay(fullscreen);
+
     }
     if (buttons[2] == 1){
-    	fill_rectangle(50, 55, 100, 200, 0, 0, 31);
-    	drawRect(0,0,DISPLAY_W, DISPLAY_H);
+    	//fill_rectangle(50, 55, 100, 200, 0, 0, 31);
+    	fill_rectangle(rectang, red);
+    	//drawRect(0,0,DISPLAY_W, DISPLAY_H);
+    	updateDisplay(rectang);
     }
+    //if (buttons[3] == 1){
+    //updateDisplay(fullscreen);
+    //}
 }
 

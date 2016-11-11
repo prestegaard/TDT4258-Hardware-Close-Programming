@@ -5,9 +5,24 @@
 #define DISPLAY_PIXELS 76800
 #define DISPLAY_BYTES 153600
 
+typedef struct Rectangle{
+	uint16_t dx;			//start X
+	uint8_t dy;			//Start Y
+	uint16_t width;		//Bredde X
+	uint8_t height;		//høyde y
+	//uint8_t color;
+}Rectangle;
+
+
+
+typedef struct Color{
+	uint8_t R;
+	uint8_t G;
+	uint8_t B;
+}Color;
+
 int setupFB();
-void drawRect(uint16_t dx, uint16_t dy, uint16_t width, uint16_t height);
+void updateDisplay(Rectangle rectangle);
 uint16_t mapRGB(uint8_t R, uint8_t G, uint8_t B);
 void fillBackground(uint8_t R, uint8_t G, uint8_t B);
-void fill_rectangle(uint16_t x_pos_left, uint16_t x_pos_right, 
-		uint16_t y_pos_top, uint16_t y_pos_bottom, uint8_t R, uint8_t G, uint8_t B);
+void fill_rectangle(Rectangle rectangle, Color color);
