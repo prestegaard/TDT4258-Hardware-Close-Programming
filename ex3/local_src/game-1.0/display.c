@@ -38,7 +38,14 @@ int init_display_fb(){
 	} 
 	return EXIT_SUCCESS;
 }
-
+int deinit_display_fb(){
+	if(close(fbfd < 0)){
+		printf("Could not close framebuffer\n");
+		return EXIT_FAILURE;
+	}
+	printf("Framebuffer is closed\n");
+	return EXIT_SUCCESS;
+}
 uint16_t mapRGB(uint8_t R, uint8_t G, uint8_t B){
 	// R max 5 bit => 0-31
 	// G max 6 bit => 0-63

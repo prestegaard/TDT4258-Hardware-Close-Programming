@@ -21,6 +21,7 @@ typedef struct Color{
 }Color;
 
 int init_display_fb();
+int deinit_display_fb();
 void update_display(Rectangle rectangle);
 uint16_t mapRGB(uint8_t R, uint8_t G, uint8_t B);
 void fill_background(uint8_t R, uint8_t G, uint8_t B);
