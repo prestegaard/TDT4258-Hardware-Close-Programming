@@ -1,8 +1,3 @@
-/*
- * This is a demo Linux kernel module.
- */
-
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -56,14 +51,6 @@ static struct file_operations gamepad_fops = {
   .read    = gamepad_read,
   .fasync  = gamepad_fasync,  // asyncronous notification
 };
-/*
- * template_init - function to insert this module into kernel space
- *
- * This is the first of two exported functions to handle inserting this
- * code into a running kernel
- *
- * Returns 0 if successfull, otherwise -1
- */
 
 
 irqreturn_t gpio_interrupt_handler(int irq, void* dev_id, struct pt_regs* regs){
@@ -85,7 +72,7 @@ static int __init gamepad_init(void){
 	int number;
 	number = alloc_chrdev_region(&dev_number, BASE_MINOR, DEV_COUNT, DRIVER_NAME);
 	if ( number < 0){
-		printk(KERN_ALERT "feilmelding alloc_chdev_region\n");
+		printk(KERN_ALERT "Error alloc_chdev_region\n");
 		return -1;
 	}
 
@@ -97,17 +84,15 @@ static int __init gamepad_init(void){
 		return -1;
 	}
 
-	//init cdev
+	//Init cdev
 	printk(KERN_INFO "Initializing cdev.\n");
-	//gamepad_cdev = cdev_alloc();
 	cdev_init(&gamepad_cdev, &gamepad_fops);
     gamepad_cdev.owner = THIS_MODULE;
 	cdev_add(&gamepad_cdev, dev_number, DEV_COUNT);
 
-	//DRIVER = File
+	//Make driver available as file. 
 	printk("Creating class\n");
 	cl = class_create(THIS_MODULE, DRIVER_NAME);
-	//device_create(class, parent, devt, fmt)
 	device_create(cl, NULL, dev_number, NULL, DRIVER_NAME);
 
 	//Setting up GPIO
@@ -116,7 +101,7 @@ static int __init gamepad_init(void){
 
 	//setup interrupts
 	//request_irq(irq, handler, irqflags, devname, dev_id)
-	printk("setting up interrupts\n");
+	printk("Setting up interrupts\n");
 	request_irq(GPIO_EVEN_IRQ, (irq_handler_t)gpio_interrupt_handler, 0, DRIVER_NAME, &gamepad_cdev);
 	request_irq(GPIO_ODD_IRQ, (irq_handler_t)gpio_interrupt_handler, 0, DRIVER_NAME, &gamepad_cdev);
 
@@ -128,15 +113,10 @@ static int __init gamepad_init(void){
 
 
 	printk("Hello World, here is your module speaking\n");
+	printk("The gamepad driver is ready for use\n");
 	return 0;
 }
 
-/*
- * template_cleanup - function to cleanup this module from kernel space
- *
- * This is the second of two exported functions to handle cleanup this
- * code from a running kernel
- */
 
 static void __exit gamepad_cleanup(void){
 	printk("Disable interrupts\n");
@@ -144,7 +124,7 @@ static void __exit gamepad_cleanup(void){
 	free_irq(GPIO_ODD_IRQ, &gamepad_cdev);
 	free_irq(GPIO_EVEN_IRQ, &gamepad_cdev);
 
-	printk("destroy class\n");
+	printk("Destroy class\n");
 	device_destroy(cl, dev_number);
 	class_destroy(cl);
 	cdev_del(&gamepad_cdev);
@@ -173,5 +153,5 @@ static ssize_t gamepad_read(struct file* filp, char* __user buffer,
 	printk(KERN_INFO "Gamepad read function called\n");
     uint8_t button_state = ioread8(GPIO_PC_DIN);		//only read the LSB
     copy_to_user(buffer, &button_state, count);
-    return 1;
+    return 0;
 }

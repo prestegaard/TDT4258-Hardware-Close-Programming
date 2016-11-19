@@ -6,11 +6,10 @@
 #define DISPLAY_BYTES 153600
 
 typedef struct Rectangle{
-	uint16_t dx;			//start X
-	uint8_t dy;			//Start Y
-	uint16_t width;		//Bredde X
-	uint8_t height;		//høyde y
-	//uint8_t color;
+	uint16_t dx;		//start X
+	uint8_t dy;			//start Y
+	uint16_t width;		//stop X
+	uint8_t height;		//stop y
 }Rectangle;
 
 
@@ -21,8 +20,8 @@ typedef struct Color{
 	uint8_t B;
 }Color;
 
-int setupFB();
-void updateDisplay(Rectangle rectangle);
+int init_display_fb();
+void update_display(Rectangle rectangle);
 uint16_t mapRGB(uint8_t R, uint8_t G, uint8_t B);
-void fillBackground(uint8_t R, uint8_t G, uint8_t B);
+void fill_background(uint8_t R, uint8_t G, uint8_t B);
 void fill_rectangle(Rectangle rectangle, Color color);

@@ -19,14 +19,16 @@ struct fb_copyarea rect;
 
 
 
-int setupFB(){
+int init_display_fb(){
+	//remove cursor blink, OS default...
 	char remove_cursor_blink[50];
 	strcpy( remove_cursor_blink, "echo 0 > /sys/class/graphics/fbcon/cursor_blink");
 	system(remove_cursor_blink);
 
 	fbfd = open("/dev/fb0", O_RDWR);
 	if (fbfd < 0){
-		printf("error opening Framebuffer\n");
+		printf("Error opening Framebuffer\n");
+		return EXIT_FAILURE;
 	}
 	printf("Framebuffer opened\n");
 	fbmmap = (uint16_t*)mmap(NULL,320*240*2,PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
@@ -58,17 +60,16 @@ uint16_t mapRGB(uint8_t R, uint8_t G, uint8_t B){
 	return mapped_RGB;
 }
 
-void updateDisplay(Rectangle rectangle){
+void update_display(Rectangle rectangle){
 	rect.dx = rectangle.dx;
 	rect.dy = rectangle.dy;
 	rect.width = rectangle.width;
 	rect.height = rectangle.height;
 	ioctl(fbfd, 0x4680, &rect); //update display
-	printf("display is updated\n");
 }
 
 
-void fillBackground(uint8_t R, uint8_t G, uint8_t B){
+void fill_background(uint8_t R, uint8_t G, uint8_t B){
 	int pixels;
 	uint16_t color = mapRGB(R,G,B);
 
@@ -76,7 +77,7 @@ void fillBackground(uint8_t R, uint8_t G, uint8_t B){
 		fbmmap[pixels] = color;
 	}
 
-	//drawRect(0,0, DISPLAY_W, DISPLAY_H);
+
 
 }
 
@@ -84,11 +85,9 @@ void fill_rectangle(Rectangle rectangle, Color color){
 	uint16_t y;
 	uint16_t x;
 	uint16_t color_mapped = mapRGB(color.R, color.G, color.B);
-	for(y=rectangle.dy; y<=rectangle.height; y++){
-		for(x=rectangle.dx; x <= rectangle.width; x++){
+	for(y=rectangle.dy; y<rectangle.height; y++){
+		for(x=rectangle.dx; x < rectangle.width; x++){
 			fbmmap[y*DISPLAY_W + x]=color_mapped;
 		}
 	}
 }
-//	uint16_t x_pos_left, uint16_t x_pos_right, 
-//		uint16_t y_pos_top, uint16_t y_pos_bottom, uint8_t R, uint8_t G, uint8_t B){
