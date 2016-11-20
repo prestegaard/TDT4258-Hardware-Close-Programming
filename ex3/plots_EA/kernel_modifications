@@ -1,0 +1,15 @@
+
+General Setup -> Timer subsystem -> Timer tocl jamdøomg (idle dynticks system (tickless idle )) -> Idle dynticks system (tickless idle) ON
+
+Power manegement options -> Opportunistic sleep OFF default
+Networking support OFF
+Device drivers -> Generic Dynamic Voltage and Frequency Scaling (DVFS) support -> Powersave ON
+
+Device drivers - Hardware monitoring support OFF
+Device drivers - Hardware monitoring support - Energy Micro EFM32 ADC OFF
+Device drivers - i2c support OFF
+Device drivers - spi support OFF
+Device drivers - Common Clock Framework - DegugFS representation of clock tree OFF
+
+
+Cryptographic API OFF
