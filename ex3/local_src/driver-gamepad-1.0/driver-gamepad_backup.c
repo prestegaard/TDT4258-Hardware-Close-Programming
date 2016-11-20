@@ -25,7 +25,6 @@
 #define GPIO_EVEN_IRQ 17
 #define GPIO_ODD_IRQ 18
 
-volatile uint8_t deep_sleep_is_active=0;
 static dev_t dev_number;
 struct fasync_struct* async_queue;
 struct cdev gamepad_cdev;
@@ -56,20 +55,9 @@ static struct file_operations gamepad_fops = {
 
 irqreturn_t gpio_interrupt_handler(int irq, void* dev_id, struct pt_regs* regs){
 	iowrite32(ioread32(GPIO_IF), GPIO_IFC);
-	//printk(KERN_INFO "Interrupt: Button is toggled\n");
+	printk(KERN_INFO "Interrupt: Button is toggled\n");
 		if (async_queue) {
 			kill_fasync(&async_queue, SIGIO, POLL_IN);
-		}
-		uint8_t button_state = ioread8(GPIO_PC_DIN);
-		if(button_state == 0xFE){ //if deep-sleep button is pressed toggle mode
-			if(!deep_sleep_is_active){
-				iowrite32(0x06, SCR); //enter deep sleep 
-				deep_sleep_is_active=1;
-			}
-			else{
-				iowrite32(0x0, SCR); //exit deep sleep
-				deep_sleep_is_active=0;
-			}
 		}
 	return IRQ_HANDLED;
 }
@@ -93,10 +81,6 @@ static int __init gamepad_init(void){
 	//requesting control of entire PC register
 	if (request_mem_region(GPIO_PC_BASE, 0x24, DRIVER_NAME) == NULL){
 		printk(KERN_ALERT "GPIO_PC_BASE request denied\n");
-		return -1;
-	}
-	if (request_mem_region(0xe000ed10, 0x4, DRIVER_NAME) == NULL){
-		printk(KERN_ALERT "SCR request denied\n");
 		return -1;
 	}
 
@@ -147,7 +131,6 @@ static void __exit gamepad_cleanup(void){
 	unregister_chrdev_region(dev_number, DEV_COUNT);
 
 	release_mem_region(GPIO_PC_BASE, 0x24);
-	release_mem_region(0xe000ed10, 0x4);
 	printk("Short life for a small module...\n");
 }
 
@@ -167,7 +150,7 @@ static int gamepad_release(struct inode *inode, struct file* filp){
 //Read buttons, return to user
 static ssize_t gamepad_read(struct file* filp, char* __user buffer,
         size_t count, loff_t *offset){
-	//printk(KERN_INFO "Gamepad read function called\n");
+	printk(KERN_INFO "Gamepad read function called\n");
     uint8_t button_state = ioread8(GPIO_PC_DIN);		//only read the LSB
     copy_to_user(buffer, &button_state, count);
     return 0;

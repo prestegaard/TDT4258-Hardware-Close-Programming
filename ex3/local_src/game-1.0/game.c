@@ -1,3 +1,4 @@
+#define SCR          ((volatile uint32_t*)0xe000ed10)
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -19,7 +20,6 @@ void snake_calculate_new_trace();
 void snake_update_display();
 
 uint8_t done_playing_snake=0;
-uint8_t pause_game=0;
 uint8_t change_body_color=0;
 int init_gamepad_driver();
 int deinit_gamepad_driver();
@@ -36,7 +36,7 @@ typedef struct Snake{
 	int8_t head_y; //position can be -1, then you have lost
 	uint8_t tail_x;
 	uint8_t tail_y;
-	int8_t trace[1600][2] ; //trace[n][0] is x, trace[n][1] is y
+	int8_t trace[160][2] ; //trace[n][0] is x, trace[n][1] is y
 	uint8_t game_over;
 }Snake;
 
@@ -98,10 +98,14 @@ int init_gamepad_driver(){
 	return EXIT_SUCCESS;
 }
 int deinit_gamepad_driver(){
+
 	if(close(device)< 0){
 		printf("Could not close gampead driver\n");
 		return EXIT_FAILURE;
 	}
+	char start_gamepad_driver[50];
+	strcpy( start_gamepad_driver, "modprobe -r driver-gamepad");
+	system(start_gamepad_driver);
 	printf("Gamepad driver is closed\n");
 	return EXIT_SUCCESS;
 }
@@ -135,14 +139,13 @@ uint16_t play_snake(){
 				snake_manage_food();
 				snake_update_display();
 			}
-			printf("----------------------\n");
-			usleep(50000); 		   //50 ms
-			while(pause_game && !done_playing_snake){
-				usleep(100000); //100 ms
-			}
+			//printf("----------------------\n");
+			usleep(5000); 		   //5 m
 		}while(!snake.game_over && !done_playing_snake); 
+		printf("Congratulations, your score is: %d\n" , snake.length);
 	}while(!done_playing_snake);  //restart game
-return snake.length;
+
+	return snake.length;
 }
 
 void snake_init(){
@@ -224,17 +227,17 @@ void snake_calculate_new_trace(){
 	//todo: something other when food is eaten
 	uint8_t i;
 	if(snake.length>1){
-		printf("Snake trace X: ");
+		//printf("Snake trace X: ");
 		for(i=0; i<snake.length -1; i++){
 			snake.trace[i][0] = snake.trace[i+1][0];
-			printf(" %d", snake.trace[i][0]);
+			//printf(" %d", snake.trace[i][0]);
 		}
-		printf("\nSnake trace Y: ");
+		//printf("\nSnake trace Y: ");
 		for(i=0; i<snake.length -1; i++){	
 			snake.trace[i][1] = snake.trace[i+1][1];
-			printf(" %d", snake.trace[i][1]);
+			//printf(" %d", snake.trace[i][1]);
 		}
-		printf("\n");
+		//printf("\n");
 	}
 	snake.trace[snake.length-1][0]=snake.head_x;
 	snake.trace[snake.length-1][1]=snake.head_y;
@@ -257,20 +260,26 @@ void snake_update_display(){
 	*/
 
 
-	head.width  = head.dx + 2;
-	head.height = head.dy + 2;
-	tail.width  = tail.dx + 2;
-	tail.height = tail.dy + 2;
+	head.width  = head.dx + 4;
+	head.height = head.dy + 4;
+	tail.width  = tail.dx + 4;
+	tail.height = tail.dy + 4;
 	
 	food.width  = 2 + food.dx;
 	food.height = 2 + food.dy;
 
 	fill_rectangle(head, color_body);
+	usleep(10);
 	fill_rectangle(food, color_food);
+	usleep(10);
 	fill_rectangle(tail, color_background);
+	usleep(10);
 	update_display(head);
+	usleep(10);
 	update_display(food);
+	usleep(10);
 	update_display(tail);
+	usleep(10);
 }
 
 void gamepad_signal_handler(int signo){
@@ -287,17 +296,11 @@ void gamepad_signal_handler(int signo){
 		//printf("buttons[%d] = %d \n", i+1, buttons[i]);
     }
     if (buttons[0] == 1){
-    	fill_background(31,0,25);
-    	update_display(fullscreen);
+    	//Deepsleep -> game is paused
+    	//__asm("WFI");
     }
     if (buttons[1] == 1){
-    	if(pause_game == 1){
-    		pause_game = 0;
-    	}
-    	else{
-    		pause_game = 1;
-    	}
-    	printf("pause_game: %d\n", pause_game);
+    		//nothing
     }
     if (buttons[2] == 1){
     	Color temp=color_body;
