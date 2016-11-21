@@ -25,7 +25,6 @@
 #define GPIO_EVEN_IRQ 17
 #define GPIO_ODD_IRQ 18
 
-volatile uint8_t deep_sleep_is_active=0;
 static dev_t dev_number;
 struct fasync_struct* async_queue;
 struct cdev gamepad_cdev;
@@ -60,17 +59,6 @@ irqreturn_t gpio_interrupt_handler(int irq, void* dev_id, struct pt_regs* regs){
 		if (async_queue) {
 			kill_fasync(&async_queue, SIGIO, POLL_IN);
 		}
-		uint8_t button_state = ioread8(GPIO_PC_DIN);
-		if(button_state == 0xFE){ //if deep-sleep button is pressed toggle mode
-			if(!deep_sleep_is_active){
-				iowrite32(0x06, SCR); //enter deep sleep 
-				deep_sleep_is_active=1;
-			}
-			else{
-				iowrite32(0x0, SCR); //exit deep sleep
-				deep_sleep_is_active=0;
-			}
-		}
 	return IRQ_HANDLED;
 }
 
@@ -95,11 +83,7 @@ static int __init gamepad_init(void){
 		printk(KERN_ALERT "GPIO_PC_BASE request denied\n");
 		return -1;
 	}
-	if (request_mem_region(0xe000ed10, 0x4, DRIVER_NAME) == NULL){
-		printk(KERN_ALERT "SCR request denied\n");
-		return -1;
-	}
-
+	
 	//Init cdev
 	printk(KERN_INFO "Initializing cdev.\n");
 	cdev_init(&gamepad_cdev, &gamepad_fops);
@@ -147,7 +131,6 @@ static void __exit gamepad_cleanup(void){
 	unregister_chrdev_region(dev_number, DEV_COUNT);
 
 	release_mem_region(GPIO_PC_BASE, 0x24);
-	release_mem_region(0xe000ed10, 0x4);
 	printk("Short life for a small module...\n");
 }
 

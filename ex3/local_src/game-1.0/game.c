@@ -10,7 +10,7 @@
 #include "display.h"
 
 int device;
-
+volatile uint8_t pause_game=0;
 uint16_t play_snake();
 void snake_init();
 void snake_update_head_position();
@@ -140,7 +140,10 @@ uint16_t play_snake(){
 				snake_update_display();
 			}
 			//printf("----------------------\n");
-			usleep(5000); 		   //5 m
+			usleep(50000); 		   //50 ms 
+			while(pause_game){
+				usleep(100000);    //100 ms
+			}
 		}while(!snake.game_over && !done_playing_snake); 
 		printf("Congratulations, your score is: %d\n" , snake.length);
 	}while(!done_playing_snake);  //restart game
@@ -153,6 +156,7 @@ void snake_init(){
 	srand(seed);
 	seed=time(0);
 	done_playing_snake=0;
+	pause_game=1;
 	snake.game_over=0;
 	snake.food_x=20;
 	snake.food_y=20;
@@ -297,10 +301,20 @@ void gamepad_signal_handler(int signo){
     }
     if (buttons[0] == 1){
     	//Deepsleep -> game is paused
-    	//__asm("WFI");
+    	char suspend_to_ram[50];
+		strcpy(suspend_to_ram, "echo mem > /sys/power/state");
+		system(suspend_to_ram);
+		fill_background(0,0,0);
+		fill_rectangle(rectang, color_background);
+		update_display(fullscreen);
     }
     if (buttons[1] == 1){
-    		//nothing
+    		if(pause_game){
+    			pause_game=0;
+    		}
+    		else{
+    			pause_game=1;
+    		}
     }
     if (buttons[2] == 1){
     	Color temp=color_body;
